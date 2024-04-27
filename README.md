@@ -1,2 +1,2 @@
-# Error-Propagation-Formula
-A basic webpage to calculate the error propagation of a given expression
+# Error Propagation Formula
+An static calculator website to calculate the error propagation formula of a given expression.
