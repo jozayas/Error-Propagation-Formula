@@ -1,18 +1,38 @@
 const inputForm = document.getElementById("InputForm");
 const outputDiv = document.getElementById("OutputDiv");
 
-inputForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+function main() {
+  inputForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  while (outputDiv.firstChild) {
-    outputDiv.removeChild(outputDiv.firstChild);
+    while (outputDiv.firstChild) {
+      outputDiv.removeChild(outputDiv.firstChild);
+    }
+
+    const inputText = document.getElementById("InputTextBox");
+
+    inputFormula = inputText.value;
+
+    const { errorFormula, formula } = getErrorFormula(inputFormula);
+
+    const correctedLatex = getCorrectFormula(errorFormula);
+
+    print_original_formula(formula);
+
+    print_output_formula(correctedLatex);
+  });
+}
+
+function getErrorFormula(inputFormula) {
+
+  let formula;
+  try{
+  formula = nerdamer(inputFormula);
   }
-
-  const inputText = document.getElementById("InputTextBox");
-
-  inputFormula = inputText.value;
-
-  const formula = nerdamer(inputFormula);
+  catch (error){
+    alert(`Error: ${error.name} - ${error.message}`)
+    throw Error("The formula is not valid")
+  }
 
   const variables = formula.variables();
 
@@ -21,36 +41,66 @@ inputForm.addEventListener("submit", (event) => {
   variables.forEach((arg) => {
     const deltavar = nerdamer("Delta" + arg);
 
-    const term = nerdamer.diff(formula, arg).multiply(deltavar).pow(2);
+    const term = nerdamer.diff(formula, arg).pow(2).multiply(deltavar.pow(2));
 
     sum = sum.add(term);
   });
 
   const errorFormula = sum.pow("1/2");
+  return { errorFormula, formula };
+}
 
-  const correctedLatex = getCorrectFormula(errorFormula);
+function getCorrectFormula(
+  errorFormula,
+  addParenthesis = true,
+  removeCDots = false
+) {
+  console.log(errorFormula.text());
 
-  print_original_formula(formula);
+  let addedDeltaParenthesis;
 
-  print_output_formula(correctedLatex);
-});
+  if (addParenthesis) {
+    addedDeltaParenthesis = errorFormula
+      .toTeX()
+      .replace(/Delta\w+/g, (match) => {
+        return `\\left(${match}\\right)`;
+      });
+  } else {
+    addedDeltaParenthesis = errorFormula.toTeX();
+  }
 
-function getCorrectFormula(errorFormula) {
-  const fixedDelta = errorFormula.toTeX().replace(/Delta/g, "Delta ");
+  const fixedDeltaWhiteSpace = addedDeltaParenthesis.replace(
+    /Delta/g,
+    "Delta "
+  );
 
   const greekLetterNames =
     "(?<!\\\\)alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Alpha|Beta|Gamma|Delta|Epsilon|Zeta|Eta|Theta|Iota|Kappa|Lambda|Mu|Nu|Xi|Omicron|Pi|Rho|Sigma|Tau|Upsilon|Phi|Chi|Psi|Omega";
 
-  const fixedGreekLetters = fixedDelta.replace(
+  const fixedGreekLetters = fixedDeltaWhiteSpace.replace(
     new RegExp(`\\b(${greekLetterNames})\\b`, "g"),
     (match) => {
       return `\\${match} `;
     }
   );
 
-  const removedDots = fixedGreekLetters.replace(/\\Delta \\cdot/g, "\\Delta");
+  const removedDoublebars = fixedGreekLetters.replace(/\\\\/g, "\\");
 
-  const correctedLatex = removedDots;
+  const removedDeltaDots = removedDoublebars.replace(
+    /\\Delta \\cdot/g,
+    "\\Delta"
+  );
+
+  let removedCDots;
+
+  if (removeCDots) {
+    removedCDots = removedDeltaDots.replace(/\\cdot /g, "");
+  } else {
+    removedCDots = removedDeltaDots;
+  }
+
+  const correctedLatex = removedCDots;
+
   return correctedLatex;
 }
 
@@ -64,6 +114,8 @@ function print_original_formula(formula) {
   const inputp = document.createElement("p");
 
   const latexformula = formula.toTeX();
+
+  console.log(latexformula);
 
   inputp.innerHTML = `\\[${latexformula}\\]`;
 
@@ -98,13 +150,14 @@ function addCopyButton(div, latexformula) {
 }
 
 async function toClipboard(event, textToCopy) {
-  console.log(textToCopy);
   event.preventDefault();
 
   await navigator.clipboard.writeText(textToCopy);
 }
 
 function print_output_formula(correctedLatex) {
+  console.log(correctedLatex);
+
   const header = document.createElement("h2");
 
   header.textContent = "Error Formula";
@@ -121,3 +174,12 @@ function print_output_formula(correctedLatex) {
 
   addCopyButton(outputDiv, correctedLatex);
 }
+
+try {
+  main();
+} catch (error) {
+  console.log("hey")
+  alert(error.message)
+  
+}
+
