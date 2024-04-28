@@ -24,14 +24,12 @@ function main() {
 }
 
 function getErrorFormula(inputFormula) {
-
   let formula;
-  try{
-  formula = nerdamer(inputFormula);
-  }
-  catch (error){
-    alert(`Error: ${error.name} - ${error.message}`)
-    throw Error("The formula is not valid")
+  try {
+    formula = nerdamer(inputFormula);
+  } catch (error) {
+    alert(`Error: ${error.name} - ${error.message}`);
+    throw Error("The formula is not valid");
   }
 
   const variables = formula.variables();
@@ -62,8 +60,8 @@ function getCorrectFormula(
   if (addParenthesis) {
     addedDeltaParenthesis = errorFormula
       .toTeX()
-      .replace(/Delta\w+/g, (match) => {
-        return `\\left(${match}\\right)`;
+      .replace(/(Delta\w+)(?:_(\{\d+\}))/g, (_, delta, subscript) => {
+        return `\\left(${delta}_${subscript}\\right)`;
       });
   } else {
     addedDeltaParenthesis = errorFormula.toTeX();
@@ -178,8 +176,6 @@ function print_output_formula(correctedLatex) {
 try {
   main();
 } catch (error) {
-  console.log("hey")
-  alert(error.message)
-  
+  console.log("hey");
+  alert(error.message);
 }
-
