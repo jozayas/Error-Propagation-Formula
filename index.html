@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error Propagation</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+    <div id="Calculator">
+      <div id="header" class="container">
+        <h1>Error Propagation Formula Calculator</h1>
+      </div>
+
+      <div class="container">
+        <form id="InputForm">
+          <input
+            type="text"
+            id="InputTextBox"
+            placeholder="Enter formula here"
+          />
+          <div class="container"><button type="submit" class="modern-button">To Latex</button></div>
+          
+        </form>
+      </div>
+      <div id="OutputDiv"></div>
+      <script src="app.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/nerdamer/nerdamer.core.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/nerdamer/Calculus.js"></script>
+    </div>
+</div>
+  </body>
+</html>
